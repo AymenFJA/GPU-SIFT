@@ -9,7 +9,20 @@ The code is free to use for non-commercial applications. If you use the code for
 
 M. Bj&ouml;rkman, N. Bergstr&ouml;m and D. Kragic, "Detecting, segmenting and tracking unknown objects using multi-label MRF inference", CVIU, 118, pp. 111-127, January 2014. [ScienceDirect](http://www.sciencedirect.com/science/article/pii/S107731421300194X)
 
-## New version for GEOTIFF sattelite Imagery (2019-03-22)
+## New version for GEOTIFF sattelite Imagery  (2019-04-25)
+
+Adding tiling method for GEO TIFF please to use it follow the instructions below :
+
+In order to read tiled geospatial data please use the following flags:
+* "./cudasift */images/5000.tif 0 0 2000 2000 */2000.tif 1000 1000 2000 2000  
+### Where
+       *  the source image : XOff=0 YOff=0 XSize=2000 YSize=2000
+       *  Target image     : XOff=1000 YOff=1000 XSize=2000 YSize=2000
+
+where  (XOff, YOff) are the coordinates of the top left corner of a patch whose width and height are respectively XSize and YSize.
+
+
+## version for GEOTIFF sattelite Imagery (2019-03-22)
 
 This is the fifth version of SIFT (Scale Invariant Feature Transform) implementation using CUDA for GPUs from NVidia, this version is serving a specific purpose for `project ICEBERG funded by NSF` . 
 In this version we improved the following :
