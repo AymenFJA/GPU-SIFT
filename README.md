@@ -33,7 +33,7 @@ In this version we improved the following :
 |    5000   |   2121   |   44.4%  | 9.208750  |
 
 ### Comparing SIFT , SURF AND ROOT SIFT discriptors to CUDA SIFT
-![](https://github.com/AymenFJA/GPU-SIFT/blob/master/images/sift-surf-rsift.png)
+![](https://i.ibb.co/HDSy7gJ/sift-surf-rsift.png)
 
 credit @aymen.alsaadi@rutgers.edu
 
