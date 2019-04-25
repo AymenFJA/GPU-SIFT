@@ -1,5 +1,4 @@
 # CudaSift - SIFT features with CUDA
-
 This is the fourth version of a SIFT (Scale Invariant Feature Transform) implementation using CUDA for GPUs from NVidia. The first version is from 2007 and GPUs have evolved since then. This version is slightly more precise and considerably faster than the previous versions and has been optimized for Kepler and later generations of GPUs.
 
 On a GTX 1060 GPU the code takes about 1.2 ms on a 1280x960 pixel image and 1.7 ms on a 1920x1080 pixel image. There is also code for brute-force matching of features that takes about 2.2 ms for two sets of around 1900 SIFT features each.
@@ -9,6 +8,34 @@ The code relies on CMake for compilation and OpenCV for image containers. OpenCV
 The code is free to use for non-commercial applications. If you use the code for research, please cite to the following paper.
 
 M. Bj&ouml;rkman, N. Bergstr&ouml;m and D. Kragic, "Detecting, segmenting and tracking unknown objects using multi-label MRF inference", CVIU, 118, pp. 111-127, January 2014. [ScienceDirect](http://www.sciencedirect.com/science/article/pii/S107731421300194X)
+
+## New version for GEOTIFF sattelite Imagery (2019-03-22)
+
+This is the fifth version of SIFT (Scale Invariant Feature Transform) implementation using CUDA for GPUs from NVidia, this version is serving a specific purpose for `project ICEBERG funded by NSF` . 
+In this version we improved the following :
+
+1. Improve the CUDA Sift code (memalloc) to accept image size up to 10000 x 10000 pixels .
+2. Reading GEOTIFF images using openCV.
+3. Retrieving GEOTIFF image attribute using gdal .
+4. Making the source and the target images as an argument to be given via the command line .
+       ``` ./cudasift source.tif target.tif ```
+5. Writing down the matched keypoints on the source and the target images .
+6. Generate source_output and target_output as jpg images.
+7. Writing down the matched keypoints of x1,y1,x2,y2 to a CSV file .
+
+   last results for this release :
+
+| Tile Size | #Matches | %Matches | Cost (sec)|
+|-----------|----------|----------|-----------|
+|    2000   |   4236   |   40.4%  | 1.645000  |
+|    3000   |   3491   |   42.5%  | 3.107143  |
+|    4000   |   2720   |   43.2%  | 5.784286  |
+|    5000   |   2121   |   44.4%  | 9.208750  |
+
+### Comparing SIFT , SURF AND ROOT SIFT discriptors to CUDA SIFT
+![](https://github.com/AymenFJA/GPU-SIFT/blob/master/images/sift-surf-rsift.png)
+
+credit @aymen.alsaadi@rutgers.edu
 
 ## New version for Pascal (2018-10-26)
 
@@ -101,7 +128,7 @@ The requirements on number and quality of features vary from application to appl
 
 In many cases the most fine-scale features are of little use, especially when noise conditions are severe or when features are matched between very different views. In such cases the most fine-scale features can be pruned by setting *minScale* to the minimum acceptable feature scale, where 1.0 corresponds to the original image scale without upscaling. As a consequence of pruning the computational cost can also be reduced.
 
-To increase the number of SIFT features, but also increase the computational cost, the original image can be automatically upscaled to double the size using the *upScale* parameter, in accordance to Lowe's recommendations. One should keep in mind though that by doing so the fraction of features that can be matched tend to go down, even if the total number of extracted features increases significantly. If it's enough to instead reduce the *thresh* parameter to get more features, that is often a better alternative.
+To increase the number of SIFT features, but also increase the computational cost, the original image can be automatically upscaled to double the size using the *upScale* parameter, in accordings with Lowe's recommendations. One should keep in mind though that by doing so the fraction of features that can be matched tend to go down, even if the total number of extracted features increases significantly. If it's enough to instead reduce the *thresh* parameter to get more features, that is often a better alternative.
 
 Results without upscaling (upScale=False) of 1280x960 pixel input image. 
 
