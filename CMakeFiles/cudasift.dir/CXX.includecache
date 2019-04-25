@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/aymen/SummerRadical/SIFT-GPU/cudaImage.h
+
+/home/aymen/SummerRadical/SIFT-GPU/cudaSift.h
+cudaImage.h
+/home/aymen/SummerRadical/SIFT-GPU/cudaImage.h
+
+/home/aymen/SummerRadical/SIFT-GPU/mainSift.cpp
+iostream
+-
+cmath
+-
+iomanip
+-
+opencv2/core/core.hpp
+-
+opencv2/highgui/highgui.hpp
+-
+opencv2/imgproc/imgproc.hpp
+-
+opencv2/features2d/features2d.hpp
+-
+fstream
+-
+cudaImage.h
+/home/aymen/SummerRadical/SIFT-GPU/cudaImage.h
+cudaSift.h
+/home/aymen/SummerRadical/SIFT-GPU/cudaSift.h
+vector
+-
+
