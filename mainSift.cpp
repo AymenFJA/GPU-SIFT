@@ -30,7 +30,13 @@ int main(int argc, char **argv)
   int devNum = 0, imgSet = 0;
   if( argc != 11)
     {
-     std::cout <<" Usage: display_image ImageToLoadAndDisplay" << std::endl;
+     std::cout <<"Usage :";
+     std::cout <<"./cudaSift img1 x1 y1 x2 y2 img2 x1 y1 x2 y2 " << std::endl;
+     std::cout <<" img1 : The source image to be matched! " << std::endl;
+     std::cout <<" img2 : The target image to be matched! " << std::endl;
+     std::cout <<" x1,y1,x2,y2 are the coordinates of the tile! " << std::endl;	
+    
+     
      return -1;
     }
   cv::Mat src_limg, trg_rimg;
@@ -58,9 +64,28 @@ int main(int argc, char **argv)
   int trg_y1= strtol(argv[8],NULL, 10);
   int trg_x2= strtol(argv[9],NULL, 10);
   int trg_y2= strtol(argv[10],NULL,10);
-  cv::Mat limg = cv::Mat(src_limg, cv::Rect(src_x1,src_y1,src_x2,src_y2));
-  cv::Mat rimg = cv::Mat(trg_rimg, cv::Rect(trg_x1,trg_y1,trg_x2,trg_y2)); 
   
+  if (((src_x1 > src_limg.cols) || (src_y1 > src_limg.rows)) && ((src_x2 > src_limg.cols) ||(src_y2 > src_limg.rows)))
+     {
+      std::cout <<  "Requested tile size is bigger than the original source image size" << std::endl ;
+      return -1;
+     }
+  else if (((trg_x1 > trg_rimg.cols) || (trg_y1 > trg_rimg.rows)) && ((trg_y2 > trg_rimg.cols) ||(trg_y2 > trg_rimg.rows)))
+     {
+     std::cout <<  "Requested tile size is bigger than the original target image size" << std::endl ;
+     return -1;
+     }
+
+     
+     cv::Mat limg = cv::Mat(src_limg, cv::Rect(src_x1,src_y1,src_x2,src_y2));
+     cv::Mat rimg = cv::Mat(trg_rimg, cv::Rect(trg_x1,trg_y1,trg_x2,trg_y2)); 
+     //cv::gpu::GpuMat gm;    
+     //gm.upload(src_limg);
+     //gm.upload(trg_rimg);
+    
+     //cv::gpu::GpuMat rimg= trg_rimg;
+     //cv::gpu::GpuMat.upload(limg);
+     //cv::gpu::GpuMat.upload(rimg);
   unsigned int w = limg.cols;
   unsigned int h = limg.rows;
   unsigned int w2 = rimg.cols;
@@ -131,8 +156,11 @@ int main(int argc, char **argv)
   // Print out and store summary data
   PrintMatchData(siftData1, siftData2, img1);
   PrintMatchData(siftData1, siftData2, img2);
-  cv::imwrite("/home/aymen/SummerRadical/GPU-SIFT/source_output.jpg", limg);
-  cv::imwrite("/home/aymen/SummerRadical/GPU-SIFT/target_output.jpg", rimg);
+  
+  cv::imwrite("/home/aymen/SummerRadical/SIFT-GPU/source_output.pgm", limg);
+  std::cout<< "img1 saved"<<std::endl;
+  cv::imwrite("/home/aymen/SummerRadical/SIFT-GPU/target_output.pgm", rimg);
+  std::cout<< "img2 saved"<<std::endl;
   std::cout << "Output Images are saved in the same directory !) "<<std::endl;
 
 
