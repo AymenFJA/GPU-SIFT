@@ -16,8 +16,11 @@
 #include "cudaSift.h"
 #include <vector>
 #include <stdlib.h>  // for strtol
+#include <string>
+using std::string;
+
 int ImproveHomography(SiftData &data, float *homography, int numLoops, float minScore, float maxAmbiguity, float thresh);
-void PrintMatchData(SiftData &siftData1, SiftData &siftData2, CudaImage &img);
+void PrintMatchData(SiftData &siftData1, SiftData &siftData2, CudaImage &img, const string& s, const string& s2);
 void MatchAll(SiftData &siftData1, SiftData &siftData2, float *homography);
 
 double ScaleUp(CudaImage &res, CudaImage &src);
@@ -27,7 +30,7 @@ double ScaleUp(CudaImage &res, CudaImage &src);
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv) 
 {    
-  int devNum = 0, imgSet = 0;
+  int devNum = 2, imgSet = 0;
   if( argc != 11)
     {
      std::cout <<"Usage :";
@@ -64,7 +67,7 @@ int main(int argc, char **argv)
   int trg_y1= strtol(argv[8],NULL, 10);
   int trg_x2= strtol(argv[9],NULL, 10);
   int trg_y2= strtol(argv[10],NULL,10);
-  
+ /* 
   if (((src_x1 > src_limg.cols) || (src_y1 > src_limg.rows)) && ((src_x2 > src_limg.cols) ||(src_y2 > src_limg.rows)))
      {
       std::cout <<  "Requested tile size is bigger than the original source image size" << std::endl ;
@@ -76,7 +79,7 @@ int main(int argc, char **argv)
      return -1;
      }
 
-     
+   */  
      cv::Mat limg = cv::Mat(src_limg, cv::Rect(src_x1,src_y1,src_x2,src_y2));
      cv::Mat rimg = cv::Mat(trg_rimg, cv::Rect(trg_x1,trg_y1,trg_x2,trg_y2)); 
      //cv::gpu::GpuMat gm;    
@@ -86,6 +89,10 @@ int main(int argc, char **argv)
      //cv::gpu::GpuMat rimg= trg_rimg;
      //cv::gpu::GpuMat.upload(limg);
      //cv::gpu::GpuMat.upload(rimg);
+  //Here You should add the adaptive contrast code to be applied before creating cuda image TO BE FIXED!
+  
+   
+  
   unsigned int w = limg.cols;
   unsigned int h = limg.rows;
   unsigned int w2 = rimg.cols;
@@ -98,7 +105,7 @@ int main(int argc, char **argv)
  
   std::cout << "Source image size = (" << w << "," << h << ")" << std::endl;
   std::cout << "Target image size = (" << w2 << "," << h2 << ")" << std::endl;
-
+   
   //@aymen.alsaadi This funcion will use adaptive threshold instead for giving a static value //
   //
   //
@@ -122,13 +129,16 @@ int main(int argc, char **argv)
 
   // Extract Sift features from images
   SiftData siftData1, siftData2;
-  float initBlur = 1.0f;
-  float thresh =1.3f;
+  float initBlur = 0.3f;
+  //float thresh =3.3f;
+  float thresh = (imgSet ? 4.5f : 3.0f);
+  //std::cin>>thresh ; 
+  //std::cin>>initBlur;
   std::cout<<"Threshold value :"<<thresh<<std::endl;
-  InitSiftData(siftData1, 1000000, true, true);
-  InitSiftData(siftData2, 1000000, true, true);
+  InitSiftData(siftData1, 132768, true, true); //before it was 100,000
+  InitSiftData(siftData2, 132768, true, true); //before it was 100,000
   
-  
+  system("nvidia-smi");
   // A bit of benchmarking 
   //for (int thresh1=1.00f;thresh1<=4.01f;thresh1+=0.50f) {
   float *memoryTmp = AllocSiftTempMemory(w, h, 5, false);
@@ -143,8 +153,8 @@ int main(int argc, char **argv)
       MatchSiftData(siftData1, siftData2);
     float homography[9];
     int numMatches;
-    FindHomography(siftData1, homography, &numMatches, 10000, 0.00f, 0.80f, 5.0);
-    int numFit = ImproveHomography(siftData1, homography, 5, 0.00f, 0.80f, 1.3);
+    FindHomography(siftData1, homography, &numMatches, 10000, 0.0f, 0.80f, 5.0);
+    int numFit = ImproveHomography(siftData1, homography, 5, 0.0f, 0.80f, 3.0);
     
     std::cout << "Number features detected by SIFT descriptors : " <<"Source Image "<<  siftData1.numPts << ", Target Image " << siftData2.numPts << std::endl;
     std::cout << "Number of Matched features: " << numMatches <<std::endl;
@@ -154,8 +164,30 @@ int main(int argc, char **argv)
     //}
   
   // Print out and store summary data
-  PrintMatchData(siftData1, siftData2, img1);
-  PrintMatchData(siftData1, siftData2, img2);
+  
+  string ss1 = (argv[1]);
+  string ss2 = (argv[6]);
+  //string("sift_matches_")+s1+string("_")+s2;
+  
+  std::cout<<ss1;
+  char sep = '/';
+  size_t i = ss1.rfind(sep, ss1.length());
+  size_t i2 = ss2.rfind(sep, ss2.length());
+
+  if (i != string::npos && i2 != string::npos) 
+   {
+      string filename = ss1.substr(i+1, ss1.length() - i);
+      string filename2 = ss2.substr(i2+1, ss2.length() - i2);
+      size_t lastindex = filename.find_last_of("."); 
+      size_t lastindex2 = filename2.find_last_of(".");
+      string rawname = filename.substr(0, lastindex); 
+      string rawname2 = filename2.substr(0, lastindex2);
+      
+      PrintMatchData(siftData1, siftData2, img1, rawname, rawname2);
+   }
+  
+  //PrintMatchData(siftData1, siftData2, img1, ss1);
+  //PrintMatchData(siftData1, siftData2, img2);
   
   cv::imwrite("/home/aymen/SummerRadical/SIFT-GPU/source_output.pgm", limg);
   std::cout<< "img1 saved"<<std::endl;
@@ -226,12 +258,26 @@ void MatchAll(SiftData &siftData1, SiftData &siftData2, float *homography)
   std::cout << homography[6] << " " << homography[7] << " " << homography[8] << std::endl;//%%%
 }
 
-void PrintMatchData(SiftData &siftData1, SiftData &siftData2, CudaImage &img)
+void PrintMatchData(SiftData &siftData1, SiftData &siftData2, CudaImage &img, const string& s, const string& s2)
 {
+  
+   //@aymenalsaadi creating a csv file to save the matched keypoints
+   std::ofstream myfile;
+   string ss1 = s;
+   string ss2 = s2;  
+   string ff  = string("/pylon5/mc3bggp/aymen/cuda_out/sift_matches_")+ss1+string("_")+ss2+string(".csv");
+   const char * c = ff.c_str(); 
+   //myfile.open(c);
+   myfile.open(c, std::ofstream::out | std::ofstream::trunc);
+   myfile<<"x1, y1, sigma1, angle1, t1_x, t1_y, theta1, x2, y2, sigma2, angle2, t2_x, t2_y, theta2"<<std::endl;
+   //myfile.close();
+     
+
   //@aymenalsaadi creating a csv file to save the matched keypoints
-  std::ofstream myfile;
-  myfile.open ("CUDA_data_matches.csv", std::ofstream::out | std::ofstream::trunc);
-  myfile<<"x1, y1, x2, y2,dx,dy"<<std::endl;
+  //std::ofstream myfile;
+  //myfile.open ("/home/aymen/cuda_out/CUDA_data_matches.csv", std::ofstream::out | std::ofstream::trunc);
+  //myfile<<"x1, y1, sigma1, angle1, t1_x, t1_y, theta1, x2, y2, sigma2, angle2, t2_x, t2_y, theta2"<<std::endl;
+  //myfile<<"x1, y1, x2, y2,dx,dy"<<std::endl;
   int numPts = siftData1.numPts;
 #ifdef MANAGEDMEM
   SiftPoint *sift1 = siftData1.m_data;
@@ -249,8 +295,7 @@ void PrintMatchData(SiftData &siftData1, SiftData &siftData2, CudaImage &img)
     if (sift1[j].match_error<5) {
       float dx = sift2[k].xpos - sift1[j].xpos;
       float dy = sift2[k].ypos - sift1[j].ypos;
-      //@aymenalsaadi writing the matched keypoints (x1,y1-x2,y2) into csv file
-      myfile<<((int)sift1[j].xpos)<<","<<((int)sift1[j].ypos)<<","<<((int)sift2[k].xpos)<<","<<((int)sift2[k].ypos)<<std::endl;
+            
 #if 0
       if (false && sift1[j].xpos>550 && sift1[j].xpos<600) {
 	std::cout << "pos1=(" << (int)sift1[j].xpos << "," << (int)sift1[j].ypos << ") ";
@@ -272,8 +317,14 @@ void PrintMatchData(SiftData &siftData1, SiftData &siftData2, CudaImage &img)
     }
     int x = (int)(sift1[j].xpos+0.5);
     int y = (int)(sift1[j].ypos+0.5);
+    int x2 = (int)(sift2[j].xpos+0.5);
+    int y2 = (int)(sift2[j].ypos+0.5);
     int s = std::min(x, std::min(y, std::min(w-x-2, std::min(h-y-2, (int)(1.41*sift1[j].scale)))));
+    int s2 = std::min(x, std::min(y, std::min(w-x-2, std::min(h-y-2, (int)(1.41*sift2[j].scale)))));
     int p = y*w + x;
+    int p2 = y2*w + x2;
+    myfile<<(x)<<","<<(y)<<","<<(s)<<","<<(s2)<<","<<(p)<<","<<(p2)<<","<<(x2)<<","<<(y2)<<","<<(s)<<","<<(s2)<<","<<(p)<<","<<(p2)<<","<<(s)<<","<<(p)<<std::endl; 
+    
     p += (w+1);
     for (int k=0;k<s;k++) 
       h_img[p-k] = h_img[p+k] = h_img[p-k*w] = h_img[p+k*w] = 0.0f;
