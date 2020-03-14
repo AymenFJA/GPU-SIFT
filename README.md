@@ -27,7 +27,7 @@ where  (XOff, YOff) are the coordinates of the top left corner of a patch whose 
 This is the fifth version of SIFT (Scale Invariant Feature Transform) implementation using CUDA for GPUs from NVidia, this version is serving a specific purpose for `project ICEBERG funded by NSF` . 
 In this version we improved the following :
 
-1. Improve the CUDA Sift code (memalloc) to accept image size up to 10000 x 10000 pixels .
+1. Allocate extra memory to accept image size up to 10000 x 10000 pixels .
 2. Reading GEOTIFF images using openCV.
 3. Retrieving GEOTIFF image attribute using gdal .
 4. Making the source and the target images as an argument to be given via the command line .
