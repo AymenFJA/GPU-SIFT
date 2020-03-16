@@ -190,8 +190,8 @@ int main( int argc, char* argv[] ){
     // need to load that yourself or use the full GDAL driver.  The values are pre-defined
     // at the top of this file
     //![load1]
-    cv::Mat src_limg = cv::imread(argv[1],0) cv::IMREAD_LOAD_GDAL | cv::IMREAD_COLOR );
-    cv::Mat trg_rimg = cv::imread(argv[6],0) cv::IMREAD_LOAD_GDAL | cv::IMREAD_COLOR );
+    cv::Mat src_limg = (cv::imread(argv[1],0) cv::IMREAD_LOAD_GDAL | cv::IMREAD_COLOR );
+    cv::Mat trg_rimg = (cv::imread(argv[6],0) cv::IMREAD_LOAD_GDAL | cv::IMREAD_COLOR );
     //check for valid GEOTIFF input 
     if(! src_limg.data || ! trg_rimg.data)
     {
