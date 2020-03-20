@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Stop the MPS control daemon for each GPU and clean up /home/aymen/tmp
+# Stop the MPS control daemon for each GPU and clean up /home/aymen/MPS/
 num_gpus=2
 
 # Check if there is an alive MPS server on every GPU
