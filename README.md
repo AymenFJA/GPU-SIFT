@@ -14,12 +14,13 @@ M. Bj&ouml;rkman, N. Bergstr&ouml;m and D. Kragic, "Detecting, segmenting and tr
 Adding tiling method for GEO TIFF please to use it follow the instructions below :
 
 In order to read tiled geospatial data please use the following flags:
-* "./cudasift */images/5000.tif 0 0 2000 2000 */2000.tif 1000 1000 2000 2000  
+
+`./cudasift ~/images/5000.tif 0 0 2000 2000 */2000.tif 1000 1000 2000 2000`  
 ### Where
-       *  the source image : XOff=0 YOff=0 XSize=2000 YSize=2000
+       *  The source image : XOff=0 YOff=0 XSize=2000 YSize=2000
        *  Target image     : XOff=1000 YOff=1000 XSize=2000 YSize=2000
 
-where  (XOff, YOff) are the coordinates of the top left corner of a patch whose width and height are respectively XSize and YSize.
+Where (XOff, YOff) are the coordinates of the top left corner of a patch whose width and height are respectively XSize and YSize.
 
 
 ## version for GEOTIFF sattelite Imagery (2019-03-22)
