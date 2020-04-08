@@ -16,10 +16,10 @@ var=$(nvidia-smi -L)
 var2=${var#GPU 0: Tesla P100-PCIE-16GB (UUID:}
 var3=${var2%)}
 
-export CUDA_VISIBLE_DEVICES= echo ${var3} #Make one of the GPUs visable per iteration
-
-export CUDA_MPS_PIPE_DIRECTORY=/home/aymen/MPS/mps_$i # Set the path of the MPS Deamon folder 
-export CUDA_MPS_LOG_DIRECTORY=/home/aymen/MPS/mps_log_$i # Set the path of the MPS logs folder 
+#export CUDA_VISIBLE_DEVICES= echo ${var3} #Make one of the GPUs visable per iteration
+export CUDA_VISIBLE_DEVICES=0
+export CUDA_MPS_PIPE_DIRECTORY=~/MPS/mps_$i # Set the path of the MPS Deamon folder 
+export CUDA_MPS_LOG_DIRECTORY=~/MPS/mps_log_$i # Set the path of the MPS logs folder 
 
 #nvidia-smi -i 2 -c EXCLUSIVE_PROCESS 
 
