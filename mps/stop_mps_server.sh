@@ -9,12 +9,12 @@ for ((i=0; i< $num_gpus; i++)) # Iterate through the avilable devices
 do
 
 echo $i
-export CUDA_MPS_PIPE_DIRECTORY=/home/aymen/MPS/tmp/mps_$i
+export CUDA_MPS_PIPE_DIRECTORY=~/MPS/mps_$i
 
 echo "quit" | nvidia-cuda-mps-control
 
-rm -fr /home/aymen/MPS/tmp/mps_$i
-rm -fr /home/aymen/MPS/tmp/mps_log_$i
+rm -fr ~/MPS/tmp/mps_$i
+rm -fr ~/MPS/tmp/mps_log_$i
 
 end do
 
