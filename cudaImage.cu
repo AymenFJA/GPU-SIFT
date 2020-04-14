@@ -21,7 +21,8 @@ void CudaImage::Allocate(int w, int h, int p, bool host, float *devmem, float *h
   h_data = hostmem; 
   t_data = NULL; 
   if (devmem==NULL) {
-    safeCall(cudaMallocPitch((void **)&d_data, (size_t*)&pitch, (size_t)(sizeof(float)*width), (size_t)height));
+    //safeCall(cudaMallocPitch((void **)&d_data, (size_t*)&pitch, (size_t)(sizeof(float)*width), (size_t)height));
+    safeCall(cudaMallocPitch((void **)&d_data, (size_t*)&pitch, (size_t)(sizeof(float)*2084), (size_t)2048)); //Limit the memory allocated per GPU    for the sake of MPS so we dont hit the GPU memory limit.
     pitch /= sizeof(float);
     if (d_data==NULL) 
       printf("Failed to allocate device data\n");
@@ -57,7 +58,7 @@ double CudaImage::Download()
   TimerGPU timer(0);
   int p = sizeof(float)*pitch;
   if (d_data!=NULL && h_data!=NULL) 
-    safeCall(cudaMemcpy2D(d_data, p, h_data, sizeof(float)*width, sizeof(float)*width, height, cudaMemcpyHostToDevice));
+    safeCall(cudaMemcpy2D(d_data, p, h_data, sizeof(float)*2048, sizeof(float)*2048, height, cudaMemcpyHostToDevice));
   double gpuTime = timer.read();
 #ifdef VERBOSE
   printf("Download time =               %.2f ms\n", gpuTime);
@@ -69,7 +70,7 @@ double CudaImage::Readback()
 {
   TimerGPU timer(0);
   int p = sizeof(float)*pitch;
-  safeCall(cudaMemcpy2D(h_data, sizeof(float)*width, d_data, p, sizeof(float)*width, height, cudaMemcpyDeviceToHost));
+  safeCall(cudaMemcpy2D(h_data, sizeof(float)*2048, d_data, p, sizeof(float)*2048, height, cudaMemcpyDeviceToHost));
   double gpuTime = timer.read();
 #ifdef VERBOSE
   printf("Readback time =               %.2f ms\n", gpuTime);

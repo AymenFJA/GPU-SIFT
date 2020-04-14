@@ -1,13 +1,7 @@
-
-/* gdal_image.cpp -- Load GIS data into OpenCV Containers using the Geospatial Data Abstraction Library
-*/
-//*************************************************************//
-// CUDA SIFT extractor by Marten Björkman aka Celebrandil     //
-//                 celle @ csc.kth.se                        //
-//                Added functionality by                    //
-//                      Aymen Alsaadi                      //
-//                aymen.alsaadi@rutgers.edu               //
+/* gdal_image.cpp -- Load GIS data into OpenCV Containers*/
+/*  using the Geospatial Data Abstraction Library*/
 //*******************************************************//
+//Credit for the GDAL 
 #include <iostream>
 #include <cmath>
 #include <iomanip>
@@ -37,6 +31,8 @@ double ScaleUp(CudaImage &res, CudaImage &src);
 
 // define the corner points
 //    Note that GDAL library can natively determine this
+//    We get this for every GeoTIFF image using $gdalinfo command 
+//    It is different for every image
 cv::Point2d tl( -122.441017, 37.815664 );
 cv::Point2d tr( -122.370919, 37.815311 );
 cv::Point2d bl( -122.441533, 37.747167 );
@@ -60,9 +56,6 @@ cv::Point2d world2dem( const cv::Point2d&, const cv::Size&);
 cv::Point2d pixel2world( const int&, const int&, const cv::Size& );
 
 void add_color( cv::Vec3b& pix, const uchar& b, const uchar& g, const uchar& r );
-
-
-
 /*
  * Linear Interpolation
  * p1 - Point 1
@@ -329,7 +322,7 @@ unsigned int w2 = rimg.cols;
 unsigned int h2 = rimg.rows;
 
 std::string command1 ,command2;
-std::string cmd,cmd2="gdalinifo ";
+std::string cmd="gdalinifo ";
 std::cout << "gdal source image 1 inforamtion    " <<system(cmd.c_str())<<std::endl;
 
 

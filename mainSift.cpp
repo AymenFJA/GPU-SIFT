@@ -1,9 +1,15 @@
-/********************************************************/
-// CUDA SIFT extractor by Marten Björkman aka Celebrandil //
-// //              celle @ csc.kth.se                        //
-// //             Improved By Aymen Alsaadi                  //
-// //             aymen.alsaadi@rutgers.edu                  //
-// //********************************************************//
+/***********************************************************************/
+//        CUDA SIFT extractor by Marten Björkman aka Celebrandil       //
+//                celle @ csc.kth.se                                  //
+//                Added features :                                   //
+// 		  1-Cropping                                        //
+// 		  2-Limiting the memory allocation                 //
+// 		  for only 4GB per image                          //
+// 		  for the purposes of MPS                        //   
+// 		  2 GPUs (P100 of 16 GB per GPU)                //
+// 		  By Aymen Alsaadi                             //
+//                aymen.alsaadi@rutgers.edu                   //
+//***********************************************************//
 #include <iostream>
 #include <cmath>
 #include <iomanip>
@@ -25,9 +31,6 @@ void MatchAll(SiftData &siftData1, SiftData &siftData2, float *homography);
 
 double ScaleUp(CudaImage &res, CudaImage &src);
 
-///////////////////////////////////////////////////////////////////////////////
-// Main program
-///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv) 
 {    
   int devNum = 2, imgSet = 0;
@@ -45,6 +48,7 @@ int main(int argc, char **argv)
   cv::Mat src_limg, trg_rimg;
   cv::imread(argv[1], 0).convertTo(src_limg, CV_32FC1);
   cv::imread(argv[6], 0).convertTo(trg_rimg, CV_32FC1);
+
   //check for valid GEOTIFF input 
   if(! src_limg.data || ! trg_rimg.data)
     {
@@ -82,16 +86,13 @@ int main(int argc, char **argv)
    */  
      cv::Mat limg = cv::Mat(src_limg, cv::Rect(src_x1,src_y1,src_x2,src_y2));
      cv::Mat rimg = cv::Mat(trg_rimg, cv::Rect(trg_x1,trg_y1,trg_x2,trg_y2)); 
-     //cv::gpu::GpuMat gm;    
-     //gm.upload(src_limg);
+     //cv::gpu::GpuMat gm;  //I have used opencv GPU and it is only working on my local system  
+     //gm.upload(src_limg); // So i stopped it for now
      //gm.upload(trg_rimg);
     
      //cv::gpu::GpuMat rimg= trg_rimg;
      //cv::gpu::GpuMat.upload(limg);
      //cv::gpu::GpuMat.upload(rimg);
-  //Here You should add the adaptive contrast code to be applied before creating cuda image TO BE FIXED!
-  
-   
   
   unsigned int w = limg.cols;
   unsigned int h = limg.rows;
@@ -106,7 +107,7 @@ int main(int argc, char **argv)
   std::cout << "Source image size = (" << w << "," << h << ")" << std::endl;
   std::cout << "Target image size = (" << w2 << "," << h2 << ")" << std::endl;
    
-  //@aymen.alsaadi This funcion will use adaptive threshold instead for giving a static value //
+  //This funcion will use adaptive threshold instead for giving a static value // Some libraries are failing to load
   //
   //
   //  //cv::Mat dst2,dst1,limg2,rimg2;
@@ -115,7 +116,7 @@ int main(int argc, char **argv)
   //        //cv::imwrite("/home/aymen/SummerRadical/GPU-SIFT/dst1.jpg", dst1);
   //          //rimg2=cv::imread(argv[2],CV_LOAD_IMAGE_GRAYSCALE);
   //            //cv::adaptiveThreshold(rimg2, dst2, 200, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 65, 0);
-  //              //cv::imwrite("/home/aymen/SummerRadical/GPU-SIFT/dst2.jpg", dst2);
+  //              //cv::imwrite("~/GPU-SIFT/dst2.jpg", dst2);
   //                //*************************************************************************************************************//
   // Initial Cuda images and download images to device
 
@@ -130,10 +131,7 @@ int main(int argc, char **argv)
   // Extract Sift features from images
   SiftData siftData1, siftData2;
   float initBlur = 0.3f;
-  //float thresh =3.3f;
   float thresh = (imgSet ? 4.5f : 3.0f);
-  //std::cin>>thresh ; 
-  //std::cin>>initBlur;
   std::cout<<"Threshold value :"<<thresh<<std::endl;
   InitSiftData(siftData1, 132768, true, true); //before it was 100,000
   InitSiftData(siftData2, 132768, true, true); //before it was 100,000
@@ -167,7 +165,6 @@ int main(int argc, char **argv)
   
   string ss1 = (argv[1]);
   string ss2 = (argv[6]);
-  //string("sift_matches_")+s1+string("_")+s2;
   
   std::cout<<ss1;
   char sep = '/';
@@ -267,18 +264,9 @@ void PrintMatchData(SiftData &siftData1, SiftData &siftData2, CudaImage &img, co
    string ss2 = s2;  
    string ff  = string("/pylon5/mc3bggp/aymen/cuda_out/sift_matches_")+ss1+string("_")+ss2+string(".csv");
    const char * c = ff.c_str(); 
-   //myfile.open(c);
    myfile.open(c, std::ofstream::out | std::ofstream::trunc);
    myfile<<"x1, y1, sigma1, angle1, t1_x, t1_y, theta1, x2, y2, sigma2, angle2, t2_x, t2_y, theta2"<<std::endl;
-   //myfile.close();
-     
-
-  //@aymenalsaadi creating a csv file to save the matched keypoints
-  //std::ofstream myfile;
-  //myfile.open ("/home/aymen/cuda_out/CUDA_data_matches.csv", std::ofstream::out | std::ofstream::trunc);
-  //myfile<<"x1, y1, sigma1, angle1, t1_x, t1_y, theta1, x2, y2, sigma2, angle2, t2_x, t2_y, theta2"<<std::endl;
-  //myfile<<"x1, y1, x2, y2,dx,dy"<<std::endl;
-  int numPts = siftData1.numPts;
+   int numPts = siftData1.numPts;
 #ifdef MANAGEDMEM
   SiftPoint *sift1 = siftData1.m_data;
   SiftPoint *sift2 = siftData2.m_data;
@@ -334,5 +322,3 @@ void PrintMatchData(SiftData &siftData1, SiftData &siftData2, CudaImage &img, co
   }
   std::cout << std::setprecision(6);
 }
-
-
